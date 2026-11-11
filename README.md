@@ -4,6 +4,8 @@
 
 A minimal macOS app: the 12 keys on a circle of fifths, each a low sustained drone. Click a key (or move with the arrow keys and press space) to play it; click another to switch; click the lit key to stop.
 
+<p align="center"><img src="assets/screenshot.png" width="420" alt="Drones, with C playing"></p>
+
 ## Build
 
 Needs the Xcode Command Line Tools only.

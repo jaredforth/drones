@@ -68,6 +68,37 @@ final class Model: ObservableObject {
     }
 }
 
+struct CircleView: View {
+    @ObservedObject var model: Model
+
+    var body: some View {
+        GeometryReader { g in
+            let r = min(g.size.width, g.size.height) / 2 - 48
+            ZStack {
+                Circle().stroke(Color.gray.opacity(0.5), lineWidth: 2)
+                    .frame(width: 2 * r, height: 2 * r)
+                // Circle of fifths: clockwise from the top, each step up a fifth (7 semitones).
+                ForEach(0..<12, id: \.self) { i in
+                    let k = i * 7 % 12
+                    let on = model.active.contains(k)
+                    let here = model.cursor == i
+                    let a = Double(i) * .pi / 6 - .pi / 2
+                    Button { model.cursor = i; model.toggle(k) } label: {
+                        Text(keys[k]).font(.system(size: 22, weight: .medium))
+                            .frame(width: 64, height: 64)
+                            .background(Circle().fill(on ? Color.orange : Color.gray.opacity(0.35)))
+                            .overlay(Circle().stroke(Color.accentColor, lineWidth: here ? 4 : 0))
+                            .foregroundColor(on ? .black : .primary)
+                    }
+                    .buttonStyle(.plain)
+                    .offset(x: r * cos(a), y: r * sin(a)) // not .position: that makes each button's frame fill the window
+                }
+            }
+            .frame(width: g.size.width, height: g.size.height)
+        }
+    }
+}
+
 @main
 struct DronesApp: App {
     // ObservableObject, not @State: the @State macro needs Xcode's plugin, absent with Command Line Tools only.
@@ -75,31 +106,7 @@ struct DronesApp: App {
 
     var body: some Scene {
         WindowGroup {
-            GeometryReader { g in
-                let r = min(g.size.width, g.size.height) / 2 - 48
-                ZStack {
-                    Circle().stroke(Color.gray.opacity(0.5), lineWidth: 2)
-                        .frame(width: 2 * r, height: 2 * r)
-                    // Circle of fifths: clockwise from the top, each step up a fifth (7 semitones).
-                    ForEach(0..<12, id: \.self) { i in
-                        let k = i * 7 % 12
-                        let on = model.active.contains(k)
-                        let here = model.cursor == i
-                        let a = Double(i) * .pi / 6 - .pi / 2
-                        Button { model.cursor = i; model.toggle(k) } label: {
-                            Text(keys[k]).font(.system(size: 22, weight: .medium))
-                                .frame(width: 64, height: 64)
-                                .background(Circle().fill(on ? Color.orange : Color.gray.opacity(0.35)))
-                                .overlay(Circle().stroke(Color.accentColor, lineWidth: here ? 4 : 0))
-                                .foregroundColor(on ? .black : .primary)
-                        }
-                        .buttonStyle(.plain)
-                        .offset(x: r * cos(a), y: r * sin(a)) // not .position: that makes each button's frame fill the window
-                    }
-                }
-                .frame(width: g.size.width, height: g.size.height)
-            }
-            .frame(minWidth: 700, minHeight: 700)
+            CircleView(model: model).frame(minWidth: 700, minHeight: 700)
         }
     }
 }
