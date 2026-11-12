@@ -27,3 +27,4 @@ cat > "$app/Contents/Info.plist" <<P
 <key>NSHighResolutionCapable</key><true/>
 </dict></plist>
 P
+codesign --force --sign - "$app"
